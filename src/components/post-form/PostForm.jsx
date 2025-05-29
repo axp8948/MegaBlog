@@ -16,7 +16,7 @@ function PostForm({ post }) {
     })
 
     const navigate = useNavigate()
-    const userData = useSelector(state => state.user.userData)
+    const userData = useSelector(state => state.auth.userData)
 
     const submit = async (data) => {
         if (post) {
@@ -58,19 +58,22 @@ function PostForm({ post }) {
             return value
                 .trim()
                 .toLowerCase()
-                .replace(/^[a-zA-Z\d\s]+/g, '-')
-                .replace(/\s/g, '-')
+                .replace(/\s+/g, '-')
+                .replace(/[^a-z0-9\-]/g, '')
+
         } else return ''
 
     }, [])
 
     React.useEffect(() => {
         const subscription = watch((value, { name }) => {
-            if (name === 'title') {
-                setValue('slug', slugTransform(value.title, { shouldValidate: true }))
+            if (name === "title") {
+                setValue("slug", slugTransform(value.title), { shouldValidate: true });
             }
-        })
-    }, [watch, slugTransform, setValue])
+        });
+
+        return () => subscription.unsubscribe();
+    }, [watch, slugTransform, setValue]);
 
     return (
         <form onSubmit={handleSubmit(submit)} className="flex flex-wrap">
